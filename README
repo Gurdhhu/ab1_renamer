@@ -1,0 +1,7 @@
+*AB1 Sequence Renamer v. 1.0, 25.01.2025*
+
+This program is intended to rename .ab1 sequence chromatogram files
+contained in a directory provided by user based on the Excel table
+with mapping of old file name to new name. 
+
+The same new name also substitutes the old internal sequence name contained in .ab1 files.
