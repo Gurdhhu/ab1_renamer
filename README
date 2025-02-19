@@ -1,7 +1,11 @@
-*AB1 Sequence Renamer v. 1.0, 25.01.2025*
+*AB1 Sequence Renamer v. 1.1, 19.02.2025*
 
 This program is intended to rename .ab1 sequence chromatogram files
 contained in a directory provided by user based on the Excel table
 with mapping of old file name to new name. 
 
 The same new name also substitutes the old internal sequence name contained in .ab1 files.
+
+Update log:
+v. 1.1: Due to the limitations of the proprietary ABI file format, the internally stored sequence name has to be kept the same length as the original name, otherwise some programs (e.g., Chromas Lite) cannot read the renamed files. To comply with this, in the new version, if the new sequence name is shorter than the original one, it is padded with whitespaces to fit the original length; if it is longer, it is truncated to the previous underscore sign and padded with whitespaces if necessary (assuming that underscores separate some meaningful information blocks in the sequence name) or, if there are no underscores within the original sequence name length, it is simply hard-truncated to the original sequence name length.
+
