@@ -48,6 +48,10 @@ class AB1RenamerApp:
         self.create_widgets()
         self.setup_bindings()
 
+        # Update window geometry so it automatically fits the contents.
+        self.root.update_idletasks()
+        self.root.geometry("")
+
     def create_widgets(self):
         # Excel File Selection
         ttk.Label(self.main_frame, text="Excel File:").grid(row=0, column=0, sticky=tk.W)
@@ -55,34 +59,35 @@ class AB1RenamerApp:
         ttk.Entry(self.main_frame, textvariable=self.excel_path, width=50).grid(row=0, column=1)
         ttk.Button(self.main_frame, text="Browse", command=self.select_excel).grid(row=0, column=2)
 
-        # Sheet Selection
+        # Excel Sheet Selection
         ttk.Label(self.main_frame, text="Excel Sheet:").grid(row=1, column=0, sticky=tk.W)
         self.sheet_name = tk.StringVar()
         self.sheet_dropdown = ttk.Combobox(self.main_frame, textvariable=self.sheet_name, state="disabled")
         self.sheet_dropdown.grid(row=1, column=1, sticky=tk.W)
 
-        # AB1 Files Directory
-        ttk.Label(self.main_frame, text="AB1 Directory:").grid(row=2, column=0, sticky=tk.W)
-        self.ab1_path = tk.StringVar()
-        ttk.Entry(self.main_frame, textvariable=self.ab1_path, width=50).grid(row=2, column=1)
-        ttk.Button(self.main_frame, text="Browse", command=self.select_ab1_dir).grid(row=2, column=2)
-
-        # Output Directory
-        ttk.Label(self.main_frame, text="Output Directory:").grid(row=3, column=0, sticky=tk.W)
-        self.output_path = tk.StringVar()
-        ttk.Entry(self.main_frame, textvariable=self.output_path, width=50).grid(row=3, column=1)
-        ttk.Button(self.main_frame, text="Browse", command=self.select_output_dir).grid(row=3, column=2)
-
-        # Header Selection
-        ttk.Label(self.main_frame, text="Old Name Header:").grid(row=4, column=0, sticky=tk.W)
+        # Old Name Header Selection (moved directly under Excel Sheet)
+        ttk.Label(self.main_frame, text="Old Name Column:").grid(row=2, column=0, sticky=tk.W)
         self.old_name_header = tk.StringVar()
         self.old_name_dropdown = ttk.Combobox(self.main_frame, textvariable=self.old_name_header, state="disabled")
-        self.old_name_dropdown.grid(row=4, column=1, sticky=tk.W)
+        self.old_name_dropdown.grid(row=2, column=1, sticky=tk.W)
 
-        ttk.Label(self.main_frame, text="New Name Header:").grid(row=5, column=0, sticky=tk.W)
+        # New Name Header Selection (moved directly under Excel Sheet)
+        ttk.Label(self.main_frame, text="New Name Column:").grid(row=3, column=0, sticky=tk.W)
         self.new_name_header = tk.StringVar()
         self.new_name_dropdown = ttk.Combobox(self.main_frame, textvariable=self.new_name_header, state="disabled")
-        self.new_name_dropdown.grid(row=5, column=1, sticky=tk.W)
+        self.new_name_dropdown.grid(row=3, column=1, sticky=tk.W)
+
+        # AB1 Files Directory
+        ttk.Label(self.main_frame, text="AB1 Directory:").grid(row=4, column=0, sticky=tk.W)
+        self.ab1_path = tk.StringVar()
+        ttk.Entry(self.main_frame, textvariable=self.ab1_path, width=50).grid(row=4, column=1)
+        ttk.Button(self.main_frame, text="Browse", command=self.select_ab1_dir).grid(row=4, column=2)
+
+        # Output Directory
+        ttk.Label(self.main_frame, text="Output Directory:").grid(row=5, column=0, sticky=tk.W)
+        self.output_path = tk.StringVar()
+        ttk.Entry(self.main_frame, textvariable=self.output_path, width=50).grid(row=5, column=1)
+        ttk.Button(self.main_frame, text="Browse", command=self.select_output_dir).grid(row=5, column=2)
 
         # Run Button
         ttk.Button(self.main_frame, text="Run Renaming", command=self.run_renaming).grid(row=6, column=1, pady=20)
@@ -118,7 +123,6 @@ class AB1RenamerApp:
             valid_sheet = None
             for sheet in self.sheet_names:
                 try:
-                    # Directly check headers without triggering GUI updates
                     utils.find_header_line(self.excel_path.get(), sheet_name=sheet)
                     valid_sheet = sheet
                     break

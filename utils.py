@@ -5,32 +5,72 @@ from os import listdir
 
 def change_internal_name(path_to_infile, new_name):
     """
-    Decodes the .ab1 file, finds the default internal sequence name,
-    substitutes it with the provided new name and returns a list of
-    byte strings.
+    Reads the .ab1 file, finds the default internal sequence name,
+    and replaces it with the provided new name. The new name is modified so that:
+    - If it is shorter than the original name, it is padded with spaces.
+    - If it is longer, it is truncated to the last underscore-delimited word
+      that fits within the original length. If no whole word fits, a fallback
+      hard truncation is used.
+
+    This ensures that the internal name remains exactly the same length as the original.
     """
-    new_internal_name = new_name.encode("utf-8")
-    substitute = bytes([len(new_internal_name)]) + new_internal_name
     default_name_found = False
+    new_byte_lines = []
 
     with open(path_to_infile, "rb") as f:
         lines = f.readlines()
 
-    byte_line_list = []
-
     for line in lines:
         if b'\x06KB.bcp' not in line:
-            byte_line_list.append(line)
+            new_byte_lines.append(line)
         else:
-            default_name = findall(b'(\\w+)\\x06KB.bcp', line)[0]
-            default_name_found = True
-            pattern = bytes([len(default_name)]) + default_name
+            found = findall(b'(\\w+)\\x06KB.bcp', line)
+            if not found:
+                new_byte_lines.append(line)
+                continue
+
+            default_name = found[0]
+            old_length = len(default_name)
+            new_name_bytes = new_name.encode("utf-8")
+
+            if len(new_name_bytes) < old_length:
+                # Pad new name with spaces if it is too short.
+                new_name_bytes = new_name_bytes.ljust(old_length, b' ')
+            elif len(new_name_bytes) > old_length:
+                # Convert new_name to a string (assumed ASCII for underscore-separated words)
+                # and attempt to truncate gracefully.
+                words = new_name.split('_')
+                truncated = ""
+                for word in words:
+                    if truncated == "":
+                        # First word: check if it fits
+                        if len(word) <= old_length:
+                            truncated = word
+                        else:
+                            # Fallback: truncate the first word if it doesn't fit
+                            truncated = word[:old_length]
+                            break
+                    else:
+                        # Add underscore + next word if it fits
+                        if len(truncated) + 1 + len(word) <= old_length:
+                            truncated = truncated + "_" + word
+                        else:
+                            break
+                new_name_bytes = truncated.encode("utf-8")
+                # If after truncation it is still shorter than required, pad with spaces.
+                if len(new_name_bytes) < old_length:
+                    new_name_bytes = new_name_bytes.ljust(old_length, b' ')
+
+            substitute = bytes([old_length]) + new_name_bytes
+            pattern = bytes([old_length]) + default_name
             line_edited = sub(pattern, substitute, line)
-            byte_line_list.append(line_edited)
+            new_byte_lines.append(line_edited)
+            default_name_found = True
+
     if not default_name_found:
         print(f"Warning: {path_to_infile} - internal name was not found!")
 
-    return byte_line_list
+    return new_byte_lines
 
 
 def save_renamed_ab1(path_to_outfile, byte_line_list):
@@ -39,7 +79,6 @@ def save_renamed_ab1(path_to_outfile, byte_line_list):
     """
     with open(path_to_outfile, "wb") as out:
         out.writelines(byte_line_list)
-        # print(f"Renamed ab1 file saved to {path_to_outfile}\n")
 
 
 def find_header_line(file_path, sheet_name=0):
