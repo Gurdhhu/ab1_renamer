@@ -1,5 +1,5 @@
 """
-AB1 Sequence Renamer v. 1.0, 25.01.2025
+AB1 Sequence Renamer v. 1.1, 19.02.2025
 This program is intended to rename .ab1 sequence chromatogram files
 contained in a directory provided by user based on the Excel table
 with mapping of old file name to new name. the same new name also
@@ -189,7 +189,7 @@ class AB1RenamerApp:
 
     def show_about(self):
         about_text = (
-            "AB1 Sequence Renamer v. 1.0, 25.01.2025\n"
+            "AB1 Sequence Renamer v. 1.1, 19.02.2025\n"
             "Copyright (c) 2025 Oleg Shchepin\n\n"
             "MIT License\n\n"
             "This program is free software: you can redistribute it and/or modify "
